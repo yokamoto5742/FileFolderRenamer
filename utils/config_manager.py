@@ -1,5 +1,6 @@
 import configparser
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -54,3 +55,27 @@ def save_config(config: configparser.ConfigParser):
     except IOError as e:
         print(f"設定ファイルの保存中にエラーが発生しました: {e}")
         raise
+
+
+def get_src_dir() -> str:
+    """監視対象のディレクトリパスを取得"""
+    config = load_config()
+    return config.get('Paths', 'src_dir')
+
+
+def get_rename_pattern() -> re.Pattern:
+    """ファイル名変換用の正規表現パターンを取得"""
+    config = load_config()
+    pattern_str = config.get('Rename', 'pattern', fallback=r'_[A-Za-z0-9]{6}$')
+    try:
+        return re.compile(pattern_str)
+    except re.error as e:
+        print(f"正規表現パターンが無効です: {pattern_str}")
+        print(f"エラー: {e}")
+        raise
+
+
+def get_wait_time() -> float:
+    """ファイル書き込み完了を待つ時間を取得（秒）"""
+    config = load_config()
+    return config.getfloat('App', 'wait_time', fallback=0.5)
