@@ -56,10 +56,13 @@ class FileRenameHandler(FileSystemEventHandler):
             new_filename = pattern.sub('', new_filename)
         new_file_path = file_path.parent / f"{new_filename}{extension}"
 
-        # 変換後のファイル名が既に存在する場合
-        if new_file_path.exists():
-            logger.warning(f"変換後のファイルが既に存在します: {new_file_path}")
-            return
+        # 変換後のファイル名が既に存在する場合、連番を付与する
+        base_name = new_filename
+        counter = 1
+        while new_file_path.exists():
+            new_filename = f"{base_name} ({counter})"
+            new_file_path = file_path.parent / f"{new_filename}{extension}"
+            counter += 1
 
         try:
             file_path.rename(new_file_path)
