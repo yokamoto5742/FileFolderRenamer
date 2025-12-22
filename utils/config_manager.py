@@ -47,21 +47,31 @@ def get_src_dir() -> str:
     return config.get('Paths', 'src_dir')
 
 
-def get_rename_pattern() -> re.Pattern:
-    """ファイル名変換用の正規表現パターンを取得"""
+def get_rename_patterns() -> list[re.Pattern]:
+    """ファイル名変換用の正規表現パターンリストを取得"""
     config = load_config()
-    pattern_str = config.get('filename', 'pattern1', fallback=None)
+    pattern_items = []
 
-    # パターンが$で終わっていない場合は末尾マッチとして$を追加
-    if not pattern_str.endswith('$'):
-        pattern_str = pattern_str + '$'
+    # pattern1, pattern2, pattern3... の形式で全パターンを取得
+    for key in config['Rename']:
+        if key.startswith('pattern'):
+            pattern_str = config.get('Rename', key)
 
-    try:
-        return re.compile(pattern_str)
-    except re.error as e:
-        print(f"正規表現パターンが無効です: {pattern_str}")
-        print(f"エラー: {e}")
-        raise
+            # パターンが$で終わっていない場合は末尾マッチとして$を追加
+            if not pattern_str.endswith('$'):
+                pattern_str = pattern_str + '$'
+
+            try:
+                pattern_items.append((pattern_str, re.compile(pattern_str)))
+            except re.error as e:
+                print(f"正規表現パターンが無効です: {pattern_str}")
+                print(f"エラー: {e}")
+                raise
+
+    # より具体的なパターン（長いパターン）を先に適用するため、パターン文字列長の降順でソート
+    pattern_items.sort(key=lambda x: len(x[0]), reverse=True)
+
+    return [pattern for _, pattern in pattern_items]
 
 
 def get_wait_time() -> float:

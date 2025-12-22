@@ -3,7 +3,7 @@ from pathlib import Path
 
 from watchdog.events import FileSystemEventHandler
 
-from utils.config_manager import get_rename_pattern, get_wait_time
+from utils.config_manager import get_rename_patterns, get_wait_time
 
 
 class FileRenameHandler(FileSystemEventHandler):
@@ -11,7 +11,7 @@ class FileRenameHandler(FileSystemEventHandler):
 
     def __init__(self):
         super().__init__()
-        self.pattern = get_rename_pattern()
+        self.patterns = get_rename_patterns()
         self.wait_time = get_wait_time()
 
     def on_created(self, event):
@@ -43,12 +43,14 @@ class FileRenameHandler(FileSystemEventHandler):
 
     def should_rename(self, filename: str) -> bool:
         """ファイル名が変換対象かどうかを判定"""
-        return bool(self.pattern.search(filename))
+        return any(pattern.search(filename) for pattern in self.patterns)
 
     def rename_file(self, file_path: Path, filename: str, extension: str):
         """ファイル名を変換する"""
-        # パターンに一致する部分を削除
-        new_filename = self.pattern.sub('', filename)
+        # 全パターンに一致する部分を削除
+        new_filename = filename
+        for pattern in self.patterns:
+            new_filename = pattern.sub('', new_filename)
         new_file_path = file_path.parent / f"{new_filename}{extension}"
 
         # 変換後のファイル名が既に存在する場合
