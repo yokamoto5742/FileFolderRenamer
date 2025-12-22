@@ -50,7 +50,7 @@ def get_src_dir() -> str:
 def get_rename_pattern() -> re.Pattern:
     """ファイル名変換用の正規表現パターンを取得"""
     config = load_config()
-    pattern_str = config.get('filename', 'pattern', fallback=None)
+    pattern_str = config.get('filename', 'pattern1', fallback=None)
 
     # パターンが$で終わっていない場合は末尾マッチとして$を追加
     if not pattern_str.endswith('$'):
