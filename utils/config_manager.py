@@ -78,3 +78,19 @@ def get_wait_time() -> float:
     """ファイル書き込み完了を待つ時間を取得（秒）"""
     config = load_config()
     return config.getfloat('App', 'wait_time', fallback=0.5)
+
+
+def get_config_value(config: configparser.ConfigParser, section: str, key: str, default=None):
+    """設定値を取得する汎用ヘルパー関数"""
+    if not config.has_option(section, key):
+        return default
+
+    # デフォルト値の型に応じて適切な変換を行う
+    if isinstance(default, bool):
+        return config.getboolean(section, key)
+    elif isinstance(default, int):
+        return config.getint(section, key)
+    elif isinstance(default, float):
+        return config.getfloat(section, key)
+    else:
+        return config.get(section, key)
