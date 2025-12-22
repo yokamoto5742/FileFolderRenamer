@@ -1,9 +1,12 @@
+import logging
 import time
 from pathlib import Path
 
 from watchdog.events import FileSystemEventHandler
 
 from utils.config_manager import get_rename_patterns, get_wait_time
+
+logger = logging.getLogger(__name__)
 
 
 class FileRenameHandler(FileSystemEventHandler):
@@ -55,15 +58,13 @@ class FileRenameHandler(FileSystemEventHandler):
 
         # 変換後のファイル名が既に存在する場合
         if new_file_path.exists():
-            print(f"[スキップ] 変換後のファイルが既に存在します: {new_file_path}")
+            logger.warning(f"変換後のファイルが既に存在します: {new_file_path}")
             return
 
         try:
             file_path.rename(new_file_path)
-            print(f"[成功] リネーム完了:")
-            print(f"  変換前: {file_path.name}")
-            print(f"  変換後: {new_file_path.name}")
+            logger.info(f"リネーム完了: {file_path.name} -> {new_file_path.name}")
         except PermissionError:
-            print(f"[エラー] ファイルにアクセスできません: {file_path}")
+            logger.error(f"ファイルにアクセスできません: {file_path}")
         except OSError as e:
-            print(f"[エラー] リネーム失敗: {e}")
+            logger.error(f"リネーム失敗: {e}")
