@@ -17,11 +17,7 @@
 
 ### 変更
 
-- ファイルパスの型ヒント（`bytes | str`）に変更
 - 設定値取得時にNoneチェックを明示的に実施
 - ログローテーション設定値取得時にNoneチェックとデフォルト値を明確化
 
 ---
-
-[Unreleased]: https://github.com/yokamoto5742/FileFolderRenamer/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/yokamoto5742/FileFolderRenamer/compare/v0.9.0...v1.0.0

@@ -27,9 +27,8 @@ FileFolderRenamerは、指定されたディレクトリを監視し、ファイ
 
 ### 実行環境
 
-- Windows 10/11
+- Windows 11
 - Python 3.13以上（開発環境の場合）
-- または PyInstallerでビルドされた実行ファイル
 
 ### 依存パッケージ
 
@@ -37,8 +36,6 @@ FileFolderRenamerは、指定されたディレクトリを監視し、ファイ
 - `watchdog` (6.0.0): ファイルシステム監視
 - `pystray` (0.19.5): Windowsシステムトレイ統合
 - `pillow` (12.0.0): アイコン画像生成
-- `pytest` (9.0.2): テストフレームワーク
-- `pyinstaller` (6.17.0): 実行ファイルビルド
 
 詳細は `requirements.txt` を参照してください。
 
@@ -73,7 +70,7 @@ pip install -r requirements.txt
 src_dir = C:\Users\your-name\Desktop\target-folder
 
 [Rename]
-pattern1 = _magnate_[A-Za-z0-9]{6}$
+pattern1 = _test_[A-Za-z0-9]{6}$
 pattern2 = _[A-Za-z0-9]{6}$
 
 [App]
@@ -97,9 +94,9 @@ python main.py
 
 ### 基本的な動作
 
-1. アプリケーションを起動すると、Windowsのシステムトレイに青いファイルアイコンが表示されます
-2. 設定した監視フォルダにファイルが作成・移動されると、自動的にリネーム処理が行われます
-3. リネームの詳細はログファイル（`logs/FileFolderRenamer.log`）で確認できます
+1. アプリケーションを起動すると、Windowsのシステムトレイに青いファイルアイコンが表示されます。
+2. 設定した監視フォルダにファイルが作成・移動されると、自動的にリネーム処理が行われます。
+3. リネームの詳細はログファイル（`logs/FileFolderRenamer.log`）で確認できます。
 
 ### システムトレイメニュー
 
@@ -315,19 +312,8 @@ python main.py
 
 ## ライセンス
 
-このプロジェクトはMITライセンスの下で公開されています。詳細は `docs/LICENSE` を参照してください。
+このプロジェクトのライセンス情報については、 [LICENSE](./LICENSE) を参照してください。
 
-## 変更履歴
+## 更新履歴
 
-プロジェクトの変更履歴は `docs/CHANGELOG.md` に記録されています。
-
-## サポート
-
-問題が発生した場合は、以下を確認してください：
-
-1. `logs/FileFolderRenamer.log` でアプリケーションのログを確認
-2. `utils/config.ini` の設定が正しいか確認
-3. 正規表現パターンが正しいか確認
-4. Pythonのバージョンが3.13以上であることを確認
-
-それでも解決しない場合は、GitHubのIssueを作成してください。
+更新履歴は [CHANGELOG.md](./CHANGELOG.md) を参照

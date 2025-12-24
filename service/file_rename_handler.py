@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class FileRenameHandler(FileSystemEventHandler):
-    """ファイルシステムイベントを処理し、ファイル名を変換するハンドラー"""
+    """ファイルシステムイベントを処理しファイル名を変換するハンドラー"""
 
     def __init__(self):
         super().__init__()
