@@ -23,8 +23,7 @@ FileFolderRenamerは、指定されたディレクトリを監視し、ファイ
 ### 開発環境
 
 - Python 3.13以上
-- Windows 10/11
-- pip または uv（パッケージマネージャー）
+- Windows 11
 
 ### 実行環境
 
@@ -265,16 +264,6 @@ python build.py
 1. `app/__init__.py` のバージョン番号をパッチ版として自動インクリメント
 2. `docs/README.md` のバージョン情報を更新
 3. PyInstallerを使用してWindows実行ファイル（`dist/FileFolderRenamer.exe`）を生成
-
-### 開発ガイドライン
-
-- コーディング規約：PEP8に準拠
-- 関数サイズ：50行以下を目安
-- コメント・docstring：必要最小限の日本語で記述
-- DRY原則：重複コードの削除
-- import順序：標準ライブラリ → サードパーティ → カスタムモジュール（各カテゴリ内でアルファベット順）
-
-詳細は `CLAUDE.md` を参照してください。
 
 ## トラブルシューティング
 
