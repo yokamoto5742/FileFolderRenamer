@@ -29,12 +29,12 @@ class FileRenameHandler(FileSystemEventHandler):
             return
         self._process_file(event.dest_path)
 
-    def _process_file(self, file_path: str):
+    def _process_file(self, file_path: bytes | str):
         """ファイルを処理してリネームする"""
         # ファイル書き込み完了を待つ
         time.sleep(self.wait_time)
 
-        path = Path(file_path)
+        path = Path(file_path) if isinstance(file_path, str) else Path(str(file_path, encoding='utf-8'))
         if not path.exists():
             return
 

@@ -4,10 +4,10 @@ import re
 import sys
 
 
-def get_config_path():
+def get_config_path() -> str:
     if getattr(sys, 'frozen', False):
         # PyInstallerでビルドされた実行ファイルの場合
-        base_path = sys._MEIPASS
+        base_path = sys._MEIPASS  # type: ignore[attr-defined]
     else:
         # 通常のPythonスクリプトとして実行される場合
         base_path = os.path.dirname(__file__)

@@ -229,7 +229,92 @@ class TestTrayAppRun:
 
                 # Icon呼び出しの引数を確認
                 call_kwargs = mock_pystray.Icon.call_args[1]
-                assert call_kwargs['name'] == 'FileTransfer'
-                assert call_kwargs['title'] == 'FileTransfer'
+                assert call_kwargs['name'] == 'FileFolderRenamer'
+                assert call_kwargs['title'] == 'FileFolderRenamer'
                 assert 'icon' in call_kwargs
                 assert 'menu' in call_kwargs
+
+
+class TestTrayAppEdgeCases:
+    """エッジケースのテスト"""
+
+    def test_open_folder_with_unicode_path(self, mock_config, mock_subprocess):
+        """Unicode文字を含むパスでフォルダを開く"""
+        with patch('os.path.exists', return_value=True):
+            mock_config.return_value = r'C:\test\日本語フォルダ'
+            app = TrayApp()
+            app.src_dir = r'C:\test\日本語フォルダ'
+
+            app._open_folder()
+            mock_subprocess.Popen.assert_called_once_with(['explorer', r'C:\test\日本語フォルダ'])
+
+    def test_quit_app_without_observer_and_icon(self, mock_config):
+        """observerもiconもNoneの場合でも正常終了"""
+        with patch('os.path.exists', return_value=True):
+            app = TrayApp()
+            app.observer = None
+            app.icon = None
+
+            # 例外が発生しないことを確認
+            app._quit_app()
+
+    def test_stop_watching_called_multiple_times(self, mock_config):
+        """stop_watchingを複数回呼び出しても問題ない"""
+        with patch('os.path.exists', return_value=True):
+            app = TrayApp()
+            app.observer = MagicMock(spec=Observer)
+
+            app.stop_watching()
+            # observerは停止後にNoneにならないため、2回目は同じobserverに対して呼ばれる
+            # 実装上は問題ないことを確認
+            app.stop_watching()
+
+    def test_create_icon_image_properties(self, mock_config):
+        """アイコン画像の詳細なプロパティを確認"""
+        with patch('os.path.exists', return_value=True):
+            app = TrayApp()
+            image = app._create_icon_image()
+
+            # 画像の基本プロパティ
+            assert image.size == (64, 64)
+            assert image.mode == 'RGBA'
+            # 画像が完全に透明でないことを確認（何かが描画されている）
+            assert image.getbbox() is not None
+
+    def test_validate_src_dir_with_network_path(self, mock_config):
+        """ネットワークパスが存在しない場合"""
+        with patch('os.path.exists', return_value=False):
+            mock_config.return_value = r'\\network\share\folder'
+            with pytest.raises(SystemExit) as excinfo:
+                TrayApp()
+            assert excinfo.value.code == 1
+
+    def test_start_watching_with_already_started_observer(self, mock_config, mock_observer):
+        """既にobserverが存在する場合の処理"""
+        with patch('os.path.exists', return_value=True):
+            with patch('app.tray_app.FileRenameHandler'):
+                app = TrayApp()
+                app.observer = MagicMock(spec=Observer)
+                old_observer = app.observer
+
+                # start_watchingを再度呼び出すと新しいobserverが作成される
+                app.start_watching()
+
+                # 古いobserverは置き換えられる
+                assert app.observer != old_observer
+
+    def test_menu_callback_functions(self, mock_config, mock_subprocess):
+        """メニューのコールバック関数が正しく動作"""
+        with patch('os.path.exists', return_value=True):
+            app = TrayApp()
+            app.observer = MagicMock(spec=Observer)
+            app.icon = MagicMock()
+
+            # フォルダを開くコールバック
+            app._open_folder()
+            mock_subprocess.Popen.assert_called_once()
+
+            # 終了コールバック
+            app._quit_app()
+            app.observer.stop.assert_called_once()
+            app.icon.stop.assert_called_once()

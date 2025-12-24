@@ -13,10 +13,15 @@ def setup_logging(config: configparser.ConfigParser | None = None) -> None:
         config = load_config()
 
     try:
-        log_directory = str(get_config_value(config, 'LOGGING', 'log_directory', 'logs'))
-        log_retention_days = int(get_config_value(config, 'LOGGING', 'log_retention_days', 7))
-        project_name = str(get_config_value(config, 'LOGGING', 'project_name', 'VoiceScribe'))
-        log_level = str(get_config_value(config, 'LOGGING', 'log_level', 'INFO'))
+        log_directory_value = get_config_value(config, 'LOGGING', 'log_directory', 'logs')
+        log_retention_days_value = get_config_value(config, 'LOGGING', 'log_retention_days', 7)
+        project_name_value = get_config_value(config, 'LOGGING', 'project_name', 'VoiceScribe')
+        log_level_value = get_config_value(config, 'LOGGING', 'log_level', 'INFO')
+
+        log_directory = str(log_directory_value if log_directory_value is not None else 'logs')
+        log_retention_days = int(log_retention_days_value if log_retention_days_value is not None else 7)
+        project_name = str(project_name_value if project_name_value is not None else 'VoiceScribe')
+        log_level = str(log_level_value if log_level_value is not None else 'INFO')
 
         if not os.path.isabs(log_directory):
             project_root = os.path.dirname(os.path.dirname(__file__))
@@ -133,14 +138,19 @@ def get_log_info(config: configparser.ConfigParser | None = None) -> dict[str, s
         config = load_config()
 
     try:
-        log_directory = str(get_config_value(config, 'LOGGING', 'log_directory', 'logs'))
+        log_directory_value = get_config_value(config, 'LOGGING', 'log_directory', 'logs')
+        log_directory = str(log_directory_value if log_directory_value is not None else 'logs')
         if not os.path.isabs(log_directory):
             project_root = os.path.dirname(os.path.dirname(__file__))
             log_directory = os.path.join(project_root, log_directory)
 
-        project_name = str(get_config_value(config, 'LOGGING', 'project_name', 'project_name'))
-        log_retention_days = int(get_config_value(config, 'LOGGING', 'log_retention_days', 7))
-        debug_mode = bool(get_config_value(config, 'LOGGING', 'debug_mode', False))
+        project_name_value = get_config_value(config, 'LOGGING', 'project_name', 'project_name')
+        log_retention_days_value = get_config_value(config, 'LOGGING', 'log_retention_days', 7)
+        debug_mode_value = get_config_value(config, 'LOGGING', 'debug_mode', False)
+
+        project_name = str(project_name_value if project_name_value is not None else 'project_name')
+        log_retention_days = int(log_retention_days_value if log_retention_days_value is not None else 7)
+        debug_mode = bool(debug_mode_value if debug_mode_value is not None else False)
 
         return {
             'log_directory': log_directory,
