@@ -105,9 +105,9 @@ class TrayApp:
 
         # タスクトレイアイコンを設定
         self.icon = pystray.Icon(
-            name="FileRenamer",
+            name="FileFolderRenamer",
             icon=self._create_icon_image(),
-            title="ファイル名自動変換",
+            title="FileFolderRenamer",
             menu=self._create_menu()
         )
 
