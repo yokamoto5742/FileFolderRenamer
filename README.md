@@ -259,7 +259,7 @@ python build.py
 
 このコマンドは以下の処理を実行します：
 1. `app/__init__.py` のバージョン番号をパッチ版として自動インクリメント
-2. `docs/README.md` のバージョン情報を更新
+2. `README.md` のバージョン情報を更新
 3. PyInstallerを使用してWindows実行ファイル（`dist/FileFolderRenamer.exe`）を生成
 
 ## トラブルシューティング
@@ -312,8 +312,8 @@ python main.py
 
 ## ライセンス
 
-このプロジェクトのライセンス情報については、 [LICENSE](./LICENSE) を参照してください。
+このプロジェクトのライセンス情報については、 [LICENSE](docs/LICENSE) を参照してください。
 
 ## 更新履歴
 
-更新履歴は [CHANGELOG.md](./CHANGELOG.md) を参照
+更新履歴は [CHANGELOG.md](docs/CHANGELOG.md) を参照
