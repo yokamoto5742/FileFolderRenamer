@@ -33,13 +33,8 @@ python main.py
 python build.py
 ```
 
-パッケージ管理は `uv`（`uv.lock` あり）。README.md に記載の `pip install -r requirements.txt` は古い記述で、`requirements.txt` は存在しない。
+パッケージ管理は `uv`（`uv.lock` あり）。
 
 ## Lint / Format
 
 `ruff` が唯一の実際に強制されているリンター/フォーマッター（`pyproject.toml` の `[tool.ruff]`）。`.py` ファイルの Write/Edit 後には `ruff format` が PostToolUse フックで自動実行される。
-
-## 既知のドキュメント不整合
-
-- バージョン番号が `pyproject.toml`（1.1.0）と README/CHANGELOG（1.0.0）で食い違っている。`app/__init__.py` は空でバージョン定数は存在しない。CLAUDE.md や新規コードで特定のバージョン番号を前提にしないこと。
-- README.md のプロジェクト構成図は `scripts/version_manager.py` など既に削除されたファイルを記載しており古い。
