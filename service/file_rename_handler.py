@@ -1,10 +1,9 @@
 import logging
+import re
 import time
 from pathlib import Path
 
 from watchdog.events import FileSystemEventHandler
-
-from utils.config_manager import get_rename_patterns, get_wait_time
 
 logger = logging.getLogger(__name__)
 
@@ -12,10 +11,10 @@ logger = logging.getLogger(__name__)
 class FileRenameHandler(FileSystemEventHandler):
     """ファイルシステムイベントを処理しファイル名を変換するハンドラー"""
 
-    def __init__(self):
+    def __init__(self, patterns: list[re.Pattern], wait_time: float):
         super().__init__()
-        self.patterns = get_rename_patterns()
-        self.wait_time = get_wait_time()
+        self.patterns = patterns
+        self.wait_time = wait_time
 
     def on_created(self, event):
         """新規ファイル作成時の処理"""
@@ -34,7 +33,15 @@ class FileRenameHandler(FileSystemEventHandler):
         # ファイル書き込み完了を待つ
         time.sleep(self.wait_time)
 
-        path = Path(file_path) if isinstance(file_path, str) else Path(str(file_path, encoding='utf-8'))
+        path = (
+            Path(file_path)
+            if isinstance(file_path, str)
+            else Path(str(file_path, encoding="utf-8"))
+        )
+        self._rename_if_needed(path)
+
+    def _rename_if_needed(self, path: Path):
+        """リネーム対象であればリネームを実行"""
         if not path.exists():
             return
 
@@ -43,6 +50,12 @@ class FileRenameHandler(FileSystemEventHandler):
 
         if self.should_rename(filename):
             self.rename_file(path, filename, extension)
+
+    def process_existing_files(self, src_dir: str):
+        """起動時に既にディレクトリ内にあるファイルを処理（書き込み完了待ちは不要）"""
+        for path in Path(src_dir).iterdir():
+            if path.is_file():
+                self._rename_if_needed(path)
 
     def should_rename(self, filename: str) -> bool:
         """ファイル名が変換対象かどうかを判定"""
@@ -53,7 +66,7 @@ class FileRenameHandler(FileSystemEventHandler):
         # 全パターンに一致する部分を削除
         new_filename = filename
         for pattern in self.patterns:
-            new_filename = pattern.sub('', new_filename)
+            new_filename = pattern.sub("", new_filename)
         new_file_path = file_path.parent / f"{new_filename}{extension}"
 
         # 変換後のファイル名が既に存在する場合は連番を付与

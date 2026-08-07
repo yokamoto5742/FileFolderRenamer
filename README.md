@@ -66,10 +66,8 @@ pip install -r requirements.txt
 `utils/config.ini` を開き、監視対象フォルダと正規表現パターンを設定します：
 
 ```ini
-[Paths]
+[Watch1]
 src_dir = C:\Users\your-name\Desktop\target-folder
-
-[Rename]
 pattern1 = _test_[A-Za-z0-9]{6}$
 pattern2 = _[A-Za-z0-9]{6}$
 
@@ -95,13 +93,14 @@ python main.py
 ### 基本的な動作
 
 1. アプリケーションを起動すると、Windowsのシステムトレイに青いファイルアイコンが表示されます。
-2. 設定した監視フォルダにファイルが作成・移動されると、自動的にリネーム処理が行われます。
-3. リネームの詳細はログファイル（`logs/FileFolderRenamer.log`）で確認できます。
+2. 起動時、監視フォルダ内に既に存在するファイルもリネーム対象として処理されます。
+3. 設定した監視フォルダにファイルが作成・移動されると、自動的にリネーム処理が行われます。
+4. リネームの詳細はログファイル（`logs/FileFolderRenamer.log`）で確認できます。
 
 ### システムトレイメニュー
 
-- **監視中: フォルダ名**: 現在の監視状態を表示
-- **監視フォルダを開く**: エクスプローラーで監視フォルダを開く
+- **監視中: N件**: 監視対象フォルダの件数を表示
+- **監視フォルダを開く**: サブメニューから監視フォルダを選んでエクスプローラーで開く
 - **終了**: アプリケーションを終了
 
 ### 設定例
@@ -111,7 +110,8 @@ python main.py
 ファイル名から `_ABC123` を削除したい場合：
 
 ```ini
-[Rename]
+[Watch1]
+src_dir = C:\Users\your-name\Desktop\target-folder
 pattern1 = _[A-Za-z0-9]{6}$
 ```
 
@@ -124,7 +124,8 @@ pattern1 = _[A-Za-z0-9]{6}$
 複数の異なるパターンを適用する場合：
 
 ```ini
-[Rename]
+[Watch1]
+src_dir = C:\Users\your-name\Desktop\target-folder
 pattern1 = _magnate_[A-Za-z0-9]{6}$
 pattern2 = \(copy\)$
 ```
@@ -132,6 +133,29 @@ pattern2 = \(copy\)$
 リネーム例：
 - `file_magnate_ABC123.txt` → `file.txt`
 - `document (copy).pdf` → `document.pdf`
+
+#### 例3: 複数フォルダをフォルダごとのパターンで監視
+
+`[Watch1]`, `[Watch2]`... と連番でセクションを追加すると、複数のフォルダを監視できます。
+パターンはセクションごとに独立しており、そのフォルダで検知したファイルには
+そのセクションのパターンのみが適用されます。
+
+```ini
+[Watch1]
+src_dir = C:\Users\your-name\Desktop\magnate
+pattern1 = _magnate_[A-Za-z0-9]{6}$
+
+[Watch2]
+src_dir = C:\Users\your-name\Desktop\sales
+pattern1 = _sales_[A-Za-z0-9]{4}$
+```
+
+リネーム例：
+- `magnate` フォルダの `file_magnate_ABC123.txt` → `file.txt`
+- `sales` フォルダの `file_sales_QQ11.txt` → `file.txt`
+- `sales` フォルダの `file_magnate_ABC123.txt` → 変更なし（`[Watch2]` のパターンに一致しないため）
+
+同じ `src_dir` を複数のセクションに指定した場合、2つ目以降は警告ログを出してスキップされます。
 
 ## プロジェクト構成
 
@@ -197,14 +221,15 @@ watchdogを用いてファイルシステムイベントを監視し、リネー
 **主なメソッド**：
 - `on_created(event)`: ファイル作成イベント処理
 - `on_moved(event)`: ファイル移動イベント処理
+- `process_existing_files(src_dir)`: 起動時に既存ファイルを処理
 - `should_rename(filename)`: リネーム対象判定
 - `rename_file(file_path, filename, extension)`: リネーム実行
 
 ```python
 from service.file_rename_handler import FileRenameHandler
 
-handler = FileRenameHandler()
-# 自動的にファイル作成・移動イベントを監視
+# パターンと待機時間は監視対象ごとに外部から渡す
+handler = FileRenameHandler(target.patterns, wait_time)
 ```
 
 ### 設定管理 (`utils/config_manager.py`)
@@ -212,15 +237,15 @@ handler = FileRenameHandler()
 設定ファイルの読み込みと値の取得を行います。
 
 **主な関数**：
-- `get_src_dir()`: 監視フォルダパスを取得
-- `get_rename_patterns()`: 正規表現パターンリストを取得
+- `get_watch_targets()`: `[Watch1]`, `[Watch2]`... の監視対象（`WatchTarget`）をセクション番号順に取得
+- `compile_patterns(config, section)`: 指定セクションの正規表現パターンリストを取得
 - `get_wait_time()`: ファイル書き込み待機時間を取得（秒）
 
 ```python
-from utils.config_manager import get_src_dir, get_rename_patterns
+from utils.config_manager import get_watch_targets
 
-src_dir = get_src_dir()
-patterns = get_rename_patterns()
+for target in get_watch_targets():
+    print(target.src_dir, target.patterns)
 ```
 
 ### ログ管理 (`utils/log_rotation.py`)
