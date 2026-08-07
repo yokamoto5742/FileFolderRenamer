@@ -6,9 +6,6 @@ Windowsシステムトレイアプリケーション。監視ディレクトリ�
 
 FileFolderRenamerは、指定されたディレクトリを監視し、ファイルの作成・移動イベントを検知して正規表現パターンに基づく自動リネーム機能を提供するWindowsアプリケーションです。システムトレイに常駐し、バックグラウンドで動作します。
 
-**現在のバージョン**: 1.0.0
-**最終更新日**: 2025年12月24日
-
 ### 主な特徴
 
 - Windowsシステムトレイで常駐実行
@@ -28,7 +25,7 @@ FileFolderRenamerは、指定されたディレクトリを監視し、ファイ
 ### 実行環境
 
 - Windows 11
-- Python 3.13以上（開発環境の場合）
+- Python 3.13以上
 
 ### 依存パッケージ
 
@@ -37,7 +34,7 @@ FileFolderRenamerは、指定されたディレクトリを監視し、ファイ
 - `pystray` (0.19.5): Windowsシステムトレイ統合
 - `pillow` (12.0.0): アイコン画像生成
 
-詳細は `requirements.txt` を参照してください。
+詳細は `pyproject.toml` を参照してください。
 
 ## インストール
 
@@ -58,7 +55,7 @@ python -m venv .venv
 ### 3. 依存パッケージをインストール
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 ### 4. 設定ファイルを編集
@@ -163,12 +160,13 @@ pattern1 = _sales_[A-Za-z0-9]{4}$
 FileFolderRenamer/
 ├── main.py                          # エントリーポイント
 ├── build.py                         # PyInstallerビルドスクリプト
-├── requirements.txt                 # 依存パッケージリスト
+├── pyproject.toml                   # プロジェクト設定（依存パッケージ、ビルド設定）
+├── uv.lock                          # 依存パッケージロックファイル
 ├── pyrightconfig.json               # 型チェッカー設定
 ├── CLAUDE.md                        # 開発ガイドライン
 │
 ├── app/                             # アプリケーションコア
-│   ├── __init__.py                  # バージョン情報
+│   ├── __init__.py
 │   └── tray_app.py                  # TrayAppクラス（システムトレイ管理）
 │
 ├── service/                         # ファイル処理サービス
@@ -179,15 +177,12 @@ FileFolderRenamer/
 │   ├── config_manager.py            # 設定ファイル読み込み
 │   └── log_rotation.py              # ログ管理・ローテーション
 │
-├── scripts/                         # ビルドスクリプト
-│   └── version_manager.py           # バージョン管理
-│
 ├── tests/                           # テストコード
 │   ├── test_file_rename_handler.py  # FileRenameHandlerのテスト
-│   └── test_tray_app.py             # TrayAppのテスト
+│   ├── test_tray_app.py             # TrayAppのテスト
+│   └── test_config_manager.py       # config_managerのテスト
 │
 ├── docs/                            # ドキュメント
-│   ├── README.md                    # このファイル
 │   ├── CHANGELOG.md                 # 変更履歴
 │   └── LICENSE                      # ライセンス
 │
@@ -268,12 +263,12 @@ setup_logging()  # ロギング初期化
 ### テストの実行
 
 ```bash
-python -m pytest tests/ -v
+uv run pytest tests/ -v
 ```
 
 型チェック：
 ```bash
-pyright
+uv run pyright
 ```
 
 ### 実行ファイルのビルド
@@ -282,10 +277,7 @@ pyright
 python build.py
 ```
 
-このコマンドは以下の処理を実行します：
-1. `app/__init__.py` のバージョン番号をパッチ版として自動インクリメント
-2. `README.md` のバージョン情報を更新
-3. PyInstallerを使用してWindows実行ファイル（`dist/FileFolderRenamer.exe`）を生成
+このコマンドは PyInstallerを使用してWindows実行ファイル（`dist/FileFolderRenamer.exe`）を生成します。
 
 ## トラブルシューティング
 
@@ -341,4 +333,4 @@ python main.py
 
 ## 更新履歴
 
-更新履歴は [CHANGELOG.md](docs/CHANGELOG.md) を参照
+更新履歴は [CHANGELOG.md](docs/CHANGELOG.md) を参照してください。
